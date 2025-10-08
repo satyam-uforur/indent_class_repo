@@ -60,7 +60,7 @@ async def process_audio(file: UploadFile = File(...)):
             audio = audio.mean(axis=1)
 
         # Transcribe using Whisper (no ffmpeg)
-        result = whisper_model.transcribe(audio, fp16=False, language="en")
+        result = whisper_model.transcribe(audio, fp16=False)
         transcription = result.get("text", "").strip()
 
         # Predict intent
