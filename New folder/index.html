@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🎤 Voice to Intent</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex flex-col items-center justify-center min-h-screen">
+  <div class="bg-white shadow-xl rounded-xl p-6 w-full max-w-lg text-center">
+    <h1 class="text-2xl font-bold mb-4">🎤 Voice to Text + Intent</h1>
+    <p class="mb-4 text-gray-600">Drag & drop a <strong>.wav</strong> file below 👇</p>
+
+    <div id="dropZone" class="border-2 border-dashed border-blue-400 rounded-lg p-8 cursor-pointer bg-gray-50 hover:bg-gray-100 transition">
+      <p class="text-gray-500">Drop audio file here or click to upload</p>
+      <input type="file" id="fileInput" accept=".wav" class="hidden" />
+    </div>
+
+    <div id="loading" class="hidden mt-4 text-blue-600 font-medium animate-pulse">⏳ Processing...</div>
+
+    <div id="results" class="hidden mt-6 text-left">
+      <h2 class="font-semibold text-lg mb-2">Transcription:</h2>
+      <p id="transcription" class="bg-gray-100 p-2 rounded"></p>
+
+      <h2 class="font-semibold text-lg mt-4 mb-2">Predicted Intent:</h2>
+      <p id="intent" class="bg-gray-100 p-2 rounded text-green-700 font-bold"></p>
+    </div>
+  </div>
+
+  <script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+    const transcriptionEl = document.getElementById('transcription');
+    const intentEl = document.getElementById('intent');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('bg-blue-50');
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.classList.remove('bg-blue-50');
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('bg-blue-50');
+      if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+    });
+
+    async function handleFile(file) {
+      if (!file || !file.name.endsWith('.wav')) {
+        alert('Please upload a .wav file');
+        return;
+      }
+
+      loading.classList.remove('hidden');
+      results.classList.add('hidden');
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/process/', { method: 'POST', body: formData });
+        const data = await response.json();
+        loading.classList.add('hidden');
+
+        if (data.error) {
+          alert('Error: ' + data.error);
+        } else {
+          transcriptionEl.textContent = data.transcription;
+          intentEl.textContent = data.intent;
+          results.classList.remove('hidden');
+        }
+      } catch (err) {
+        loading.classList.add('hidden');
+        alert('Error connecting to backend: ' + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

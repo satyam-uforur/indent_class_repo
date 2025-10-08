@@ -1,0 +1,18 @@
+fastapi
+uvicorn
+<<<<<<< HEAD
+=======
+git+https://github.com/openai/whisper.git
+>>>>>>> 05407d4 (first commit)
+torch
+librosa
+soundfile
+pydub
+transformers
+scikit-learn
+joblib
+python-multipart
+<<<<<<< HEAD
+=======
+io
+>>>>>>> 05407d4 (first commit)
